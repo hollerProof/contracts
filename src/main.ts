@@ -47,7 +47,9 @@ class Prompt extends Struct({
     // ----------------------------------------------------
 
     const zkAppPrivateKey = PrivateKey.random();
+    console.log('zkAppPrivateKey', zkAppPrivateKey.toBase58().toString());
     const zkAppAddress = zkAppPrivateKey.toPublicKey();
+    console.log('zkAppAddress', zkAppAddress.toBase58());
 
     console.log('compiling...');
 
@@ -175,7 +177,7 @@ class Prompt extends Struct({
         status: Field(0)
     }
     );
-    const newTree = new MerkleTree(tree);
+    // const newTree = new MerkleTree(tree);
     console.log('tree', tree);
     const queue2Witness = new MerkleWitness9(tree.getWitness(BigInt(1)));
 
