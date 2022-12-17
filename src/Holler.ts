@@ -44,18 +44,11 @@ export class Holler extends SmartContract {
   @state(Field) target = State<Field>();
 
   events = {
-    proved: PublicKey,
+    proved: Field,
   };
 
   deploy(args: DeployArgs) {
     super.deploy(args);
-
-    const permissionToEdit = Permissions.proofOrSignature();
-
-    this.setPermissions({
-      ...Permissions.default(),
-      editState: permissionToEdit
-    });
   }
 
   @method
@@ -111,6 +104,8 @@ export class Holler extends SmartContract {
     let newProofTree = leafWitness.calculateRoot(prompt.hashComplete());
 
     this.proofTree.set(newProofTree);
+
+    this.emitEvent('proved', newProofTree);
   }
 
   @method removeFromQueue(prompt: Prompt, leafWitness: MerkleWitness9, adminSignature: Signature) {
