@@ -18,7 +18,7 @@ Mina.setActiveInstance(Berkeley);
 
 // to use this test, change this private key to an account which has enough MINA to pay fees
 let feePayerKey = PrivateKey.fromBase58(
-    'EKEQc95PPQZnMY9d9p1vq1MWLeDJKtvKj4V75UDG3rjnf32BerWD'
+    'EKEPucRogGhAf6Lv73fJ72shxXkvyjuoHGpirCJNeFhkDv6djVHw'
 );
 let feePayerAddress = feePayerKey.toPublicKey();
 let response = await fetchAccount({publicKey: feePayerAddress});
@@ -31,7 +31,7 @@ console.log(`Using fee payer account with nonce ${nonce}, balance ${balance}`);
 // replace this with a new zkapp key if you want to deploy another zkapp
 // and please never expose actual private keys in public code repositories like this!
 let zkappKey = PrivateKey.fromBase58(
-    'EKFQZG2RuLMYyDsC9RGE5Y8gQGefkbUUUyEhFbgRRMHGgoF9eKpY'
+    'EKEPucRogGhAf6Lv73fJ72shxXkvyjuoHGpirCJNeFhkDv6djVHw'
 );
 let zkappAddress = zkappKey.toPublicKey();
 

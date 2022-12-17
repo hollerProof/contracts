@@ -60,12 +60,25 @@ class Prompt extends Struct({
 
     console.log('compiled');
 
+
     // ----------------------------------------------------
 
     console.log('deploying...');
 
     const contract = new Holler(zkAppAddress);
-    const deploy_txn = await Mina.transaction(deployerAccount, () => {
+    // const deploy_txn = await Mina.transaction({feePayerKey: deployerAccount, fee: 0.1e9}, () => {
+    //     // AccountUpdate.fundNewAccount(deployerAccount);
+    //     if (!proofsEnabled) {
+    //         contract.deploy({ zkappKey: zkAppPrivateKey });
+    //     } else {
+    //         contract.deploy({ verificationKey, zkappKey: zkAppPrivateKey });
+    //     }
+    // });
+    // await deploy_txn.prove();
+    // deploy_txn.sign([zkAppPrivateKey]);
+    // await deploy_txn.send();
+
+    const deploy_txn = await Mina.transaction({feePayerKey: deployerAccount, fee: 0.1e9}, () => {
         AccountUpdate.fundNewAccount(deployerAccount);
         if (!proofsEnabled) {
             contract.deploy({ zkappKey: zkAppPrivateKey });
@@ -97,32 +110,37 @@ class Prompt extends Struct({
     // ----------------------------------------------------
 
     console.log('initializing...');
-    let init_txn = await Mina.transaction(deployerAccount, () => {
-        contract.init();
-    });
-
-    if (!proofsEnabled) {
-        await init_txn.prove();
-    } else {
-        await init_txn.prove();
-        init_txn.sign([zkAppPrivateKey]);
-    }
-    await init_txn.send();
-
     const initSignature = Signature.create(
         zkAppPrivateKey,
         tree.getRoot().toFields()
     );
-    init_txn = await Mina.transaction(deployerAccount, () => {
+    // const rest = await fetchAccount({publicKey: zkAppAddress});
+    // console.log('rest', rest);
+    console.log(contract.proofTree.get());
+    let init_txn = await Mina.transaction({feePayerKey: deployerAccount, fee:0.1e9}, () => {
+        // AccountUpdate.fundNewAccount(deployerAccount);
         contract.initState(tree.getRoot(), initSignature);
     });
 
     if (!proofsEnabled) {
         await init_txn.prove();
     } else {
+        await init_txn.prove();
         init_txn.sign([zkAppPrivateKey]);
     }
     await init_txn.send();
+
+
+    // init_txn = await Mina.transaction({feePayerKey: deployerAccount, fee:0.1e9}, () => {
+    //     contract.initState(tree.getRoot(), initSignature);
+    // });
+
+    // if (!proofsEnabled) {
+    //     await init_txn.prove();
+    // } else {
+    //     init_txn.sign([zkAppPrivateKey]);
+    // }
+    // await init_txn.send();
 
     console.log('initialized');
 
@@ -136,6 +154,7 @@ class Prompt extends Struct({
     //     zkAppPrivateKey,
     //     mintAmount.toFields().concat(zkAppAddress.toFields())
     // );
+    tree.setLeaf(BigInt(0), prompt1.hashQueue());
     const queueWitness = new MerkleWitness9(tree.getWitness(BigInt(0)));
 
     console.log('queueWitness', queueWitness);
@@ -147,6 +166,7 @@ class Prompt extends Struct({
     if (!proofsEnabled) {
         await queue_txn.prove();
     } else {
+        await queue_txn.prove();
         queue_txn.sign([zkAppPrivateKey]);
     }
     console.log('txn signed...');
@@ -177,6 +197,7 @@ class Prompt extends Struct({
         status: Field(0)
     }
     );
+    tree.setLeaf(BigInt(1), prompt2.hashQueue());
     // const newTree = new MerkleTree(tree);
     console.log('tree', tree);
     const queue2Witness = new MerkleWitness9(tree.getWitness(BigInt(1)));
@@ -190,6 +211,7 @@ class Prompt extends Struct({
     if (!proofsEnabled) {
         await queue_2_txn.prove();
     } else {
+        await queue_txn.prove();
         queue_2_txn.sign([zkAppPrivateKey]);
     }
     console.log('txn signed...');
@@ -225,6 +247,9 @@ class Prompt extends Struct({
     proof_txn.sign([zkAppPrivateKey]);
     if (!proofsEnabled) {
         await proof_txn.prove();
+    } else {
+        await proof_txn.prove();
+        await proof_txn.sign([zkAppPrivateKey]);
     }
     await proof_txn.send();
 

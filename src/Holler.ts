@@ -47,28 +47,23 @@ export class Holler extends SmartContract {
     proved: Field,
   };
 
-  deploy(args: DeployArgs) {
-    super.deploy(args);
-  }
-
-  @method
   init() {
     super.init();
     this.target.set(Field(
         '17057234437185175411792943285768571642343179330449434169483610110583519635705'
     ));
+    this.proofTree.set(Field(0))
   }
 
   @method
-  initState(commitment: Field, adminSignature: Signature) {
+  initState(proofTree: Field, adminSignature: Signature) {
     adminSignature
         .verify(
             this.address,
-            commitment.toFields(),
+            proofTree.toFields(),
         )
         .assertTrue();
-    this.proofTree.set(commitment);
-
+    this.proofTree.set(proofTree);
   }
 
   @method addQueue(salt: Field, prompt: Prompt, leafWitness: MerkleWitness9) {
@@ -78,8 +73,8 @@ export class Holler extends SmartContract {
     this.target.assertEquals(this.target.get());
     Poseidon.hash([salt]).assertEquals(this.target.get());
 
-    let commitment = this.proofTree.get();
-    this.proofTree.assertEquals(commitment);
+    let proofTree = this.proofTree.get();
+    this.proofTree.assertEquals(proofTree);
 
     // leafWitness.calculateRoot(Poseidon.hash([salt])).assertEquals(commitment);
 
